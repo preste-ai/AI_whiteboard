@@ -1,4 +1,6 @@
+__pycache__/
+
+*.pyc
 *.jpg
 /weights
 /saved
-**/__pycache__/
