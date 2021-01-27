@@ -1,4 +1,4 @@
 *.jpg
 /weights
 /saved
-/__pycache__
+**/__pycache__/
