@@ -4,7 +4,7 @@ from hand_detector.solo.solo_net import model as solo_model
 from hand_detector.yolo.darknet import model as yolo_model
 from hand_detector.solo.preprocess.solo_flag import Flag as soloFlag
 from hand_detector.yolo.preprocess.yolo_flag import Flag as yoloFlag
-
+from trt_utils import *
 
 class SOLO:
     def __init__(self, weights, threshold):
@@ -45,23 +45,47 @@ class SOLO:
 
 
 class YOLO:
-    def __init__(self, weights, threshold):
+    def __init__(self, weights, trt_engine, threshold, trt = False):
         self.f = yoloFlag()
-        self.model = yolo_model()
         self.threshold = threshold
-        self.model.load_weights(weights)
+        self.trt = trt
+
+        if self.trt:
+            self.engine = load_engine(trt_engine)
+            self.inputs, self.outputs, self.bindings, self.stream = allocate_buffers(self.engine)
+            self.context = self.engine.create_execution_context()
+        else:
+            self.model = yolo_model()
+            self.model.load_weights(weights)
 
     def detect(self, image):
         height, width, _ = image.shape
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         image = cv2.resize(image, (self.f.target_size, self.f.target_size)) / 255.0
         image = np.expand_dims(image, axis=0)
-        yolo_out = self.model.predict(image)
-        yolo_out = yolo_out[0]
+        
+        if self.trt:
+            np.copyto(self.inputs[0].host, image.ravel())
+            yolo_out = np.array([do_inference(self.context, 
+            									bindings=self.bindings, 
+            									inputs=self.inputs,       									
+            									outputs=self.outputs, 
+            									stream=self.stream)
+            					]).reshape((1, 7, 7, 5))
+        else:
+            yolo_out = self.model.predict(image)
 
+        yolo_out = yolo_out[0]
         grid_pred = yolo_out[:, :, 0]
         i, j = np.squeeze(np.where(grid_pred == np.amax(grid_pred)))
-
+        
+        try:
+            if i.shape[0] > 1 :
+                i = i[0]
+                j = j[0]
+        except:
+            pass
+        
         if grid_pred[i, j] >= self.threshold:
             bbox = yolo_out[i, j, 1:]
             x1, y1, x2, y2 = bbox[0], bbox[1], bbox[2], bbox[3]

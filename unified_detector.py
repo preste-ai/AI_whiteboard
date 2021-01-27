@@ -1,12 +1,19 @@
 import cv2
 import numpy as np
 from net.network import model
-
+from trt_utils import *
 
 class Fingertips:
-    def __init__(self, weights):
-        self.model = model()
-        self.model.load_weights(weights)
+    def __init__(self, weights, trt_engine, trt = False):
+        
+        self.trt = trt
+        if self.trt:
+            self.engine = load_engine(trt_engine)
+            self.inputs, self.outputs, self.bindings, self.stream = allocate_buffers(self.engine)
+            self.context = self.engine.create_execution_context()
+        else:
+            self.model = model()
+            self.model.load_weights(weights)
 
     @staticmethod
     def class_finder(prob):
@@ -37,7 +44,21 @@ class Fingertips:
         image = image.astype('float32')
         image = image / 255.0
         image = np.expand_dims(image, axis=0)
-        probability, position = self.model.predict(image)
+        if self.trt:
+            np.copyto(self.inputs[0].host, image.ravel())
+            position, probability = do_inference(self.context, 
+            									bindings=self.bindings, 
+            									inputs=self.inputs, 												
+            									outputs=self.outputs, 
+            									stream=self.stream)
+            					
+            position = position.reshape((1,10,10))
+            probability = probability.reshape((1,5))
+            # print('\nposition    - >', position)
+            # print('\nprobability - >', probability)
+        else:
+            probability, position = self.model.predict(image)
+            # print('\n\nprobability {}, position {}'.format(probability.shape, position.shape))
         probability = probability[0]
         position = position[0]
         return probability, position
