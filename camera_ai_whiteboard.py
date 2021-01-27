@@ -17,8 +17,8 @@ def run_whiteboard(args):
     print('-- init models --')
     try:
 
-        hand = YOLO(weights='weights/yolo.h5', trt_engine = 'weights/converted/yolo.fp16.engine', threshold=0.75, trt = args.trt & args.jetson)
-        fingertips = Fingertips(weights='weights/classes8.h5', trt_engine = 'weights/converted/classes8.fp16.engine', trt = args.trt & args.jetson)
+        hand = YOLO(weights='weights/yolo.h5', trt_engine = 'weights/converted/model_yolo.fp16.engine', threshold=0.75, trt = args.trt & args.jetson)
+        fingertips = Fingertips(weights='weights/classes8.h5', trt_engine = 'weights/converted/model_classes8.fp16.engine', trt = args.trt & args.jetson)
         
         if args.jetson:
             cam = cv2.VideoCapture(gstreamer_pipeline(flip_method=0), cv2.CAP_GSTREAMER)  
