@@ -73,8 +73,6 @@ def run_test(weights = 'weights/yolo.h5', iou_threshold = 0.5, confidence_thresh
     # create the model
     model = yolo_model()
     model.load_weights(weights)
-    model.save('model_best_yolo_old_dataset.h5')
-    exit(0)
 
     # test
     list_test_images = load_test_images()
