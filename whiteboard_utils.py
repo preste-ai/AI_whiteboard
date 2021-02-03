@@ -3,9 +3,12 @@ import numpy as np
 import copy
 
 config = {
-	'whiteboard_w': 600, # 640 # 1100
-	'whiteboard_h': 400, # 480 # 620
-
+	'whiteboard_w': 220, # 640 # 1100
+	'whiteboard_h': 220, # 480 # 620
+	'cam_w'       : 320,
+	'cam_h'       : 240,
+	'framerate'   : 60,
+	'z_koef'      : 2,   # zoom koef
 }
 
 
@@ -29,7 +32,7 @@ def draw_circle (info_whiteboard, center, color = (0, 0, 0), radius=8, thickness
 def drow_on_whiteboard(whiteboard, prob, pos, whiteboard_tl, whiteboard_br):
 
 	n_fingers = int(np.sum(prob))
-	
+	k = 0
 	# one finger detected : INDEX  | action: paint
 	if n_fingers == 1 and prob[1] == 1.0:
 		center = (int(pos[2] - whiteboard_tl[0]), int(pos[3]- whiteboard_tl[1]) )
@@ -54,7 +57,24 @@ def drow_on_whiteboard(whiteboard, prob, pos, whiteboard_tl, whiteboard_br):
 
 		info_whiteboard = copy.deepcopy(whiteboard)
 		draw_circle (info_whiteboard, center, color = (0, 255, 0), radius=12, thickness= 2)
+
+	# two fingers detected: THUMB + PINKY | action: clean whiteboard
+	elif n_fingers == 2 and prob[0] == 1.0 and prob[4] == 1.0:
+		whiteboard = np.zeros((config['z_koef']*config['whiteboard_h'],config['z_koef']*config['whiteboard_w'],3), np.uint8) + 255
+		info_whiteboard = copy.deepcopy(whiteboard)
+	
+	# three fingers detected: THUMB + MIDDLE + RING | action: save whiteboard
+	elif n_fingers == 3 and prob[1] == 1.0 and prob[2] == 1.0 and prob[3] == 1.0:
+		cv2.imwrite('saved/whiteboard_f.jpg', whiteboard)
+		print('=== SAVED ===')
+		info_whiteboard = copy.deepcopy(whiteboard)
+
+	# three fingers detected: THUMB + INDEX + PINKY | action: exit
+	elif n_fingers == 3 and prob[0] == 1.0 and prob[1] == 1.0 and prob[4] == 1.0:
+		info_whiteboard = copy.deepcopy(whiteboard)
+		k = 1
+		print('=== EXIT ===')
 	else:
 		info_whiteboard = copy.deepcopy(whiteboard)
 	
-	return whiteboard, info_whiteboard
+	return whiteboard, info_whiteboard, k
