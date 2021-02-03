@@ -1,7 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 from tensorflow.tools.graph_transforms import TransformGraph
-#from tensorflow.keras import backend as K
 import os
 import tensorrt as trt
 import onnx
@@ -70,7 +69,11 @@ def h5_to_pb(folder , model_name):
 
 def pb_to_onnx(folder, model_name):
     # pb -> onnx
-    os.system("python3 -m tf2onnx.convert --graphdef {}.pb --output {}.onnx --inputs input_2:0 --outputs probabilistic_output/Sigmoid:0,positional_output/Reshape:0 --opset=11 ".format(folder +'/'+ model_name, folder +'/' + model_name))
+    if 'yolo' in model_name:
+        os.system("python3 -m tf2onnx.convert --graphdef {}.pb --output {}.onnx --inputs input_1:0 --outputs output/Sigmoid:0 --opset=11 ".format(folder +'/'+ model_name, folder +'/' + model_name))
+
+    elif model_name == 'model_classes8':
+        os.system("python3 -m tf2onnx.convert --graphdef {}.pb --output {}.onnx --inputs input_2:0 --outputs probabilistic_output/Sigmoid:0,positional_output/Reshape:0 --opset=11 ".format(folder +'/'+ model_name, folder +'/' + model_name))
 
 
 
