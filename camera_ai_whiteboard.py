@@ -38,19 +38,22 @@ def run_whiteboard(args):
     origin_h = cam.get(cv2.CAP_PROP_FRAME_HEIGHT)  # float `height`
     print('origin width : ', origin_w)
     print('origin height: ', origin_h)
-    origin_center_x = int(origin_h/2)
+    origin_center_x = int(origin_w/2)
     origin_center_y = int(origin_h/2)
     # tl - top left | br - bottom right
-    whiteboard_tl, whiteboard_br = get_centered_whiteboart(origin_center_x, origin_center_y)
+    
 
+    cropped_x_s = origin_center_x - int(origin_h/2)
+    cropped_x_e = origin_center_x + int(origin_h/2)
+    whiteboard_tl, whiteboard_br = get_centered_whiteboart(int((cropped_x_e - cropped_x_s)/2), origin_center_y)
     # Create a whiteboard
-    z_koef = config['z_koef']
-    whiteboard = np.zeros((z_koef*config['whiteboard_h'],z_koef*config['whiteboard_w'],3), np.uint8) + 255
+    whiteboard = np.zeros((config['z_koef']*config['whiteboard_h'],config['z_koef']*config['whiteboard_w'],3), np.uint8) + 255
     info_whiteboard = copy.deepcopy(whiteboard)
     while True:
         ret, image = cam.read()
         #print('image shape : ', image.shape)
-        image = image[:,origin_center_x - int(origin_h/2):origin_center_x + int(origin_h/2),:]
+        image = image[:,cropped_x_s:cropped_x_e,:]
+
         if ret is False:
             break
 
@@ -72,11 +75,17 @@ def run_whiteboard(args):
                 pos[i] = pos[i] * width + tl[0]
                 pos[i + 1] = pos[i + 1] * height + tl[1]
 
+            ref_pos = []
+            for i in range(0, len(pos), 2):
+                tmp_x = max(-5, pos[i] - whiteboard_tl[0])/config['whiteboard_w']
+                tmp_y = max(-5, pos[i+1] - whiteboard_tl[1])/config['whiteboard_h']
+                ref_pos.append(tmp_x)
+                ref_pos.append(tmp_y)
             # drawing
             index = 0
             
             image = cv2.rectangle(image, (tl[0], tl[1]), (br[0], br[1]), (235, 26, 158), 2)
-            whiteboard, info_whiteboard, k_f = drow_on_whiteboard(whiteboard, prob, z_koef*pos, z_koef*whiteboard_tl, z_koef*whiteboard_br)
+            whiteboard, info_whiteboard, k_f = drow_on_whiteboard(whiteboard, prob, ref_pos)
 
             for c, p in enumerate(prob):
                 if p > 0.5:

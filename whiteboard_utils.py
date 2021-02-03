@@ -3,8 +3,8 @@ import numpy as np
 import copy
 
 config = {
-	'whiteboard_w': 220, # 640 # 1100
-	'whiteboard_h': 220, # 480 # 620
+	'whiteboard_w': 200, # 640 # 1100
+	'whiteboard_h': 200, # 480 # 620
 	'cam_w'       : 320,
 	'cam_h'       : 240,
 	'framerate'   : 60,
@@ -29,13 +29,15 @@ def draw_circle (info_whiteboard, center, color = (0, 0, 0), radius=8, thickness
 
 	
 
-def drow_on_whiteboard(whiteboard, prob, pos, whiteboard_tl, whiteboard_br):
+def drow_on_whiteboard(whiteboard, prob, pos):
 
+	width = config['whiteboard_w'] * config['z_koef']
+	height = config['whiteboard_h'] * config['z_koef']
 	n_fingers = int(np.sum(prob))
 	k = 0
 	# one finger detected : INDEX  | action: paint
 	if n_fingers == 1 and prob[1] == 1.0:
-		center = (int(pos[2] - whiteboard_tl[0]), int(pos[3]- whiteboard_tl[1]) )
+		center = (int(pos[2]*width), int(pos[3]*height) )
 		draw_circle (whiteboard, center)
 
 		info_whiteboard = copy.deepcopy(whiteboard)
@@ -43,14 +45,14 @@ def drow_on_whiteboard(whiteboard, prob, pos, whiteboard_tl, whiteboard_br):
 	
 	# two fingers detected: THUMB + INDEX | action: show pointer
 	elif n_fingers == 2 and prob[1] == 1.0 and prob[0] == 1.0:
-		center = (int(pos[2] - whiteboard_tl[0]), int(pos[3]- whiteboard_tl[1]) )
+		center = (int(pos[2]*width), int(pos[3]*height) )
 		
 		info_whiteboard = copy.deepcopy(whiteboard)
 		draw_circle (info_whiteboard, center, color = (255,0,0), thickness = 2)
 
 	# five fingers detected | action:  erase 
 	elif n_fingers == 5 :
-		center = (int(pos[2] - whiteboard_tl[0]), int(pos[3]- whiteboard_tl[1]) )
+		center = (int(pos[2]*width), int(pos[3]*height) )
 
 		whiteboard = cv2.circle(whiteboard, center, radius=10,
 								color=(255,255,255), thickness=-1)
