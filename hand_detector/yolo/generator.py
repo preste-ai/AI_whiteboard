@@ -15,38 +15,45 @@ def batch_indices(batch_size, dataset_size):
 
 
 def load_train_images():
-    folder_names = ['SingleOne', 'SingleTwo', 'SingleThree', 'SingleFour', 'SingleFive', 'SingleSix', 'SingleSeven',
-                    'SingleEight']
+    folder_names = ['train']
     train_image_files = []
-    dataset_directory = '../../../EgoGesture Dataset/'
+    dataset_directory = 'custom_dataset/'
     for folder in folder_names:
-        train_image_files = train_image_files + os.listdir(dataset_directory + folder + '/')
+        train_image_files += os.listdir(dataset_directory + folder + '/')
     return train_image_files
 
 
 def load_valid_images():
-    folder_name = ['SingleOneValid', 'SingleTwoValid', 'SingleThreeValid', 'SingleFourValid', 'SingleFiveValid',
-                   'SingleSixValid', 'SingleSevenValid', 'SingleEightValid']
+    folder_names = ['valid']
     valid_image_files = []
-    dataset_directory = '../../../EgoGesture Dataset/'
-    for folder in folder_name:
-        valid_image_files = valid_image_files + os.listdir(dataset_directory + folder + '/')
+    dataset_directory = 'custom_dataset/'
+    for folder in folder_names:
+        valid_image_files += os.listdir(dataset_directory + folder + '/')
     return valid_image_files
+
+
+def load_test_images():
+    folder_names = ['test']
+    test_image_files = []
+    dataset_directory = 'custom_dataset/'
+    for folder in folder_names:
+        test_image_files += os.listdir(dataset_directory + folder + '/')
+    return test_image_files
 
 
 def train_generator(batch_size, is_augment=True):
     if is_augment:
         batch_size = int(batch_size / 4)
 
-    directory = '../../../EgoGesture Dataset/'
+    directory = 'custom_dataset/'
     train_image_files = load_train_images()
     dataset_size = len(train_image_files)
     indices = batch_indices(batch_size=batch_size, dataset_size=dataset_size)
     print('Training Dataset Size: ', dataset_size)
 
     while True:
-        for i in range(0, 10):
-            random.shuffle(train_image_files)
+        # for i in range(0, 2):
+        #     random.shuffle(train_image_files)
 
         for index in indices:
             x_batch = []
@@ -54,7 +61,7 @@ def train_generator(batch_size, is_augment=True):
 
             for n in range(index[0], index[1]):
                 image_name = train_image_files[n]
-                image, bbox = label_generator(directory, image_name, type='')
+                image, bbox = label_generator(directory, 'train', image_name)
                 yolo_out = bbox_to_grid(bbox)
                 x_batch.append(image)
                 y_batch.append(yolo_out)
@@ -87,15 +94,15 @@ def train_generator(batch_size, is_augment=True):
 
 
 def valid_generator(batch_size):
-    directory = '../../../EgoGesture Dataset/'
+    directory = 'custom_dataset/'
     valid_image_files = load_valid_images()
     dataset_size = len(valid_image_files)
     indices = batch_indices(batch_size=batch_size, dataset_size=dataset_size)
     print('Validation Dataset Size: ', dataset_size)
 
     while True:
-        for i in range(0, 10):
-            random.shuffle(valid_image_files)
+        # for i in range(0, 2):
+        #     random.shuffle(valid_image_files)
 
         for index in indices:
             x_batch = []
@@ -103,7 +110,35 @@ def valid_generator(batch_size):
 
             for n in range(index[0], index[1]):
                 image_name = valid_image_files[n]
-                image, bbox = label_generator(directory, image_name, type='Valid')
+                image, bbox = label_generator(directory, 'valid', image_name)
+                yolo_out = bbox_to_grid(bbox)
+                x_batch.append(image)
+                y_batch.append(yolo_out)
+                # visualize(image, yolo_out, RGB2BGR=True)
+
+            x_batch = np.asarray(x_batch) / 255.0
+            y_batch = np.asarray(y_batch)
+            yield x_batch, y_batch
+
+
+def test_generator(batch_size):
+    directory = 'custom_dataset/'
+    test_image_files = load_test_images()
+    dataset_size = len(test_image_files)
+    indices = batch_indices(batch_size=batch_size, dataset_size=dataset_size)
+    print('Test Dataset Size: ', dataset_size)
+
+    while True:
+        # for i in range(0, 2):
+        #     random.shuffle(valid_image_files)
+
+        for index in indices:
+            x_batch = []
+            y_batch = []
+
+            for n in range(index[0], index[1]):
+                image_name = test_image_files[n]
+                image, bbox = label_generator(directory, 'test', image_name)
                 yolo_out = bbox_to_grid(bbox)
                 x_batch.append(image)
                 y_batch.append(yolo_out)
