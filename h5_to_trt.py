@@ -77,7 +77,6 @@ def pb_to_onnx(folder, model_name):
 
 
 
-
 def network_structure(args):
     model_path = args['model']
     with tf.Session() as sess:
@@ -153,11 +152,11 @@ def onnx_to_trt(folder, model_name):
             print("Jetson has fast fp16 mode")
        
         builder.max_batch_size = NUM_IMAGES_PER_BATCH
-        builder.max_workspace_size = 1 << 32
+        builder.max_workspace_size = 1 << 30
         builder.fp16_mode = True
         builder.strict_type_constraints = True
 
-        config.max_workspace_size = 1 << 32
+        config.max_workspace_size = 1 << 30
         config.flags |= 1 << int(trt.BuilderFlag.FP16)
         config.flags |= 1 << int(trt.BuilderFlag.STRICT_TYPES)
 
@@ -184,7 +183,7 @@ def onnx_to_trt(folder, model_name):
 if __name__ == "__main__":
     
     folder = 'weights/converted'
-    model_name = 'model_classes8'
+    model_name = 'model_yolo'
     
     # args = {'model':'converted/model_classes8.pb',
     #         'n' : 200}
