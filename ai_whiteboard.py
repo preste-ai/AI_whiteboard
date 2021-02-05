@@ -4,7 +4,7 @@ import time
 import copy
 import argparse
 
-from unified_detector import Fingertips
+from fingertips_detector.unified_detector import Fingertips
 from hand_detector.detector import YOLO
 from config import config
 from gst_cam import gstreamer_pipeline

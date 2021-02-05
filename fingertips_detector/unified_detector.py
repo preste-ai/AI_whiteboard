@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from net.network import model
+from fingertips_detector.net.network import model
 from trt_utils import *
 
 class Fingertips:
