@@ -43,7 +43,7 @@ def load_test_images():
 
 def train_generator(batch_size, is_augment=True):
     if is_augment:
-        batch_size = int(batch_size / 4)
+        batch_size = int(batch_size / 8)
 
     directory = 'custom_dataset/'
     train_image_files = load_train_images()
@@ -74,6 +74,25 @@ def train_generator(batch_size, is_augment=True):
                 y_batch.append(yolo_out)
                 # visualize(image_aug, yolo_out, RGB2BGR=True)
 
+                # augment 1
+                image_aug, bbox_aug = augment(image, bbox)
+                yolo_out = bbox_to_grid(bbox_aug)
+                x_batch.append(image_aug)
+                y_batch.append(yolo_out)
+
+                # augment 2
+                image_aug, bbox_aug = augment(image, bbox)
+                yolo_out = bbox_to_grid(bbox_aug)
+                x_batch.append(image_aug)
+                y_batch.append(yolo_out)
+
+                # augment 3
+                image_aug, bbox_aug = augment(image, bbox)
+                yolo_out = bbox_to_grid(bbox_aug)
+                x_batch.append(image_aug)
+                y_batch.append(yolo_out)
+
+
                 # horizontal flip
                 image_flip, bbox_flip = flip(image, bbox)
                 yolo_out = bbox_to_grid(bbox_flip)
@@ -87,6 +106,12 @@ def train_generator(batch_size, is_augment=True):
                 x_batch.append(image_flip_aug)
                 y_batch.append(yolo_out)
                 # visualize(image_flip_aug, yolo_out, RGB2BGR=True)
+
+                # horizontal flip + augment 2
+                image_flip_aug, bbox_flip_aug = augment(image_flip, bbox_flip)
+                yolo_out = bbox_to_grid(bbox_flip_aug)
+                x_batch.append(image_flip_aug)
+                y_batch.append(yolo_out)
 
             x_batch = np.asarray(x_batch) / 255.0
             y_batch = np.asarray(y_batch)

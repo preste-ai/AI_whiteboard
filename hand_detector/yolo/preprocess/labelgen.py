@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from preprocess.finder import find_folder
 from hand_detector.yolo.utils.utils import visualize
 from hand_detector.yolo.preprocess.yolo_flag import Flag
 

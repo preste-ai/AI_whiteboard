@@ -3,7 +3,7 @@
 ## Idea
 
 The idea of this project is quite interesting. 
-I want to transform any wall or surface into interactive whiteboard just with a camera and your hand!
+I want to transform any wall or surface into an interactive whiteboard just with a camera and your hand!
 
 ## Hardware
 
@@ -20,11 +20,11 @@ I want to transform any wall or surface into interactive whiteboard just with a 
 
 To run AI whiteboard:
 
-`$ python3 camera_ai_whiteboard.py -j --trt`
+`$ python3 ai_whiteboard.py -j --trt --hd 0.8 --ft 0.5`
 
 #### Control
-| To paint  | To move cursor  |  To erase | To clean | To save | 
-| :---------------:|:---------------:|:---------------:|:--------------:|:---------------:|
+| To draw | To move cursor | To erase | To clean | To save | 
+| :---------------:|:---------------:|:---------------:|:---------------:|:---------------:|
 | ![](images/to_paint.jpg)  |![](images/to_move.jpg) | ![](images/to_erase.jpg) |![](images/to_clean.jpg)|![](images/to_save.jpg)|
 
 
@@ -32,7 +32,7 @@ To run AI whiteboard:
 `$ python3 yolo_train.py`
 
 #### Custom Dataset
-- Train: 8,000 images
+- Train: 10,000 images
 - Test : 1500 images
 
 ## Test Hand-detector
