@@ -1,6 +1,6 @@
-from keras.models import Model
-from keras.layers import Conv2D, Flatten, Dense, Dropout, Reshape, UpSampling2D, Activation
-from keras.applications import VGG16
+from tensorflow.keras import Model
+from tensorflow.keras.layers import Conv2D, Flatten, Dense, Dropout, Reshape, UpSampling2D, Activation
+from tensorflow.keras.applications import VGG16
 
 
 def model():

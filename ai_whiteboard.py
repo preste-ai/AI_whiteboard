@@ -24,13 +24,13 @@ class AIWhiteboard(object):
 
         # init model
         print('-- init models ')
-        self.hand_detector = YOLO(weights='weights/yolo.h5', 
-                                  trt_engine = 'weights/converted/model_yolo.fp16.engine', 
+        self.hand_detector = YOLO(model='models/model_yolo.h5', 
+                                  trt_engine = 'models/engines/model_yolo.fp16.engine', 
                                   threshold=self.confidence_hd_threshold, 
                                   trt = args.trt & args.jetson)
 
-        self.fingertips_detector = Fingertips(weights='weights/classes8.h5', 
-                                              trt_engine = 'weights/converted/model_classes8.fp16.engine', 
+        self.fingertips_detector = Fingertips(model='models/model_classes8.h5', 
+                                              trt_engine = 'models/engines/model_classes8.fp16.engine', 
                                               trt = args.trt & args.jetson)
         if args.jetson:
             self.cam = cv2.VideoCapture(gstreamer_pipeline(capture_width=config['cam_w'],

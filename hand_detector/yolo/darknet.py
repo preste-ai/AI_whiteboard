@@ -1,5 +1,5 @@
-from keras.models import Input, Model
-from keras.layers import Conv2D, MaxPooling2D, BatchNormalization, Activation
+from tensorflow.keras import Input, Model
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, BatchNormalization, Activation
 
 
 def conv_batch_norm_relu(x, n_filters, f, padding='same', activation='relu'):
