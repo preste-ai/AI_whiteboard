@@ -1,5 +1,7 @@
 # AI_whiteboard
 
+![](images/ai_whiteboard.gif)
+
 ## Idea
 
 The idea of this project is quite interesting. 
@@ -23,10 +25,10 @@ To run AI whiteboard:
 `$ python3 ai_whiteboard.py -j --trt --hd 0.8 --ft 0.5`
 
 #### Control
-| To draw | To move cursor | To erase | To clean | To save | 
+| To draw | To move | To erase | To clean | To save | 
 |:---------------:|:---------------:|:---------------:|:---------------:|:---------------:|
-|![](images/to_paint.jpg)|![](images/to_move.jpg)|![](images/to_erase.jpg)|![](images/to_clean.jpg)|![](images/to_save.jpg)|
-
+|![](images/to_paint.jpg=228x216)|![](images/to_move.jpg)|![](images/to_erase.jpg)|![](images/to_clean.jpg)|![](images/to_save.jpg)|
+ 
 
 ## Train Hand-detector
 `$ python3 yolo_train.py`
