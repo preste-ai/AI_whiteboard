@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from tensorflow.keras.models import load_model
 from fingertips_detector.net.network import model
 from trt_utils import *
 
@@ -12,9 +13,9 @@ class Fingertips:
             self.inputs, self.outputs, self.bindings, self.stream = allocate_buffers(self.engine)
             self.context = self.engine.create_execution_context()
         else:
+            # self.model = load_model(model)
             self.model = model()
             self.model.load_weights(weights)
-
     @staticmethod
     def class_finder(prob):
         cls = ''

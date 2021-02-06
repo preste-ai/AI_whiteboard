@@ -3,6 +3,10 @@ import numpy as np
 import time
 import copy
 import argparse
+import tensorflow as tf
+config = tf.compat.v1.ConfigProto()
+config.gpu_options.allow_growth = True
+session = tf.compat.v1.Session(config=config)
 
 from fingertips_detector.unified_detector import Fingertips
 from hand_detector.detector import YOLO
@@ -24,13 +28,13 @@ class AIWhiteboard(object):
 
         # init model
         print('-- init models ')
-        self.hand_detector = YOLO(model='models/model_yolo.h5', 
-                                  trt_engine = 'models/engines/model_yolo.fp16.engine', 
+        self.hand_detector = YOLO(weights='weights/model_10k_test_best_094.h5', 
+                                  trt_engine = 'engines/model_yolo.fp16.engine', 
                                   threshold=self.confidence_hd_threshold, 
                                   trt = args.trt & args.jetson)
 
-        self.fingertips_detector = Fingertips(model='models/model_classes8.h5', 
-                                              trt_engine = 'models/engines/model_classes8.fp16.engine', 
+        self.fingertips_detector = Fingertips(weights='weights/classes8.h5', 
+                                              trt_engine = 'engines/model_classes8.fp16.engine', 
                                               trt = args.trt & args.jetson)
         if args.jetson:
             self.cam = cv2.VideoCapture(gstreamer_pipeline(capture_width=config['cam_w'],

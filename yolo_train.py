@@ -1,16 +1,14 @@
-import os
-
-# os.environ["CUDA_VISIBLE_DEVICES"]="0"  #
-
 from math import ceil
 import tensorflow as tf
-config = tf.ConfigProto()
+config = tf.compat.v1.ConfigProto()
 config.gpu_options.allow_growth = True
-session = tf.Session(config=config)
+session = tf.compat.v1.Session(config=config)
 
-from keras.optimizers import Adam
-from keras.callbacks import ModelCheckpoint
-from hand_detector.yolo.darknet import model
+
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import ModelCheckpoint
+
+from hand_detector.yolo.darknet import model as yolo_model
 from hand_detector.yolo.utils.info import data_info
 from hand_detector.yolo.generator import train_generator, valid_generator
 
@@ -31,30 +29,30 @@ def loss_function(y_true, y_pred):
 
 
 # create the model
-model = model()
-model.load_weights('weights/weights_2_032.h5')
+model = yolo_model()
+model.load_weights('weights/yolo.h5')
 model.summary()
-
 # compile
-adam = Adam(lr=1e-5, beta_1=0.9, beta_2=0.999, epsilon=1e-10, decay=0.0)
+adam = Adam(lr=1e-5, beta_1=0.9, beta_2=0.999, epsilon=1e-10)
 model.compile(optimizer=adam, loss={"output": loss_function}, metrics={"output": loss_function})
 
 # train
-epochs = 10
-batch_size = 8
+epochs = 100
+batch_size = 32
 train_set_size = data_info('train')
 valid_set_size = data_info('valid')
 training_steps_per_epoch = ceil(train_set_size / batch_size)
-validation_steps_per_epoch = ceil(valid_set_size / 256)
+validation_steps_per_epoch = ceil(valid_set_size / batch_size)
 print('training_steps_per_epoch: ', training_steps_per_epoch)
 print('validation_steps_per_epoch: ', validation_steps_per_epoch)
 train_gen = train_generator(batch_size=batch_size)
-valid_gen = valid_generator(batch_size=256)
+valid_gen = valid_generator(batch_size=batch_size)
 
-checkpoints = ModelCheckpoint('weights/weights_3_{epoch:03d}.h5', save_weights_only=True, period=1)
+checkpoints = ModelCheckpoint('weights/yolo_train_best_{epoch:03d}.h5', save_weights_only=True, monitor='val_loss_function',
+    mode='min', save_best_only=True)
 history = model.fit_generator(train_gen, steps_per_epoch=training_steps_per_epoch, epochs=epochs, verbose=1,
                               validation_data=valid_gen, validation_steps=validation_steps_per_epoch,
-                              callbacks=[checkpoints], shuffle=True, max_queue_size=16)
+                              callbacks=[checkpoints], shuffle=True, max_queue_size=10)
 
 with open('weights/history.txt', 'a+') as f:
     print(history.history, file=f)

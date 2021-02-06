@@ -24,8 +24,8 @@ To run AI whiteboard:
 
 #### Control
 | To draw | To move cursor | To erase | To clean | To save | 
-| :---------------:|:---------------:|:---------------:|:---------------:|:---------------:|
-| ![](images/to_paint.jpg)  |![](images/to_move.jpg) | ![](images/to_erase.jpg) |![](images/to_clean.jpg)|![](images/to_save.jpg)|
+|:---------------:|:---------------:|:---------------:|:---------------:|:---------------:|
+|![](images/to_paint.jpg)|![](images/to_move.jpg)|![](images/to_erase.jpg)|![](images/to_clean.jpg)|![](images/to_save.jpg)|
 
 
 ## Train Hand-detector

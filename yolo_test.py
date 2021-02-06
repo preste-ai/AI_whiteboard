@@ -1,16 +1,22 @@
-import os
 import pandas as pd
 import numpy as np
-from math import ceil
 import tensorflow as tf
+config = tf.compat.v1.ConfigProto()
+config.gpu_options.allow_growth = True
+session = tf.compat.v1.Session(config=config)
+
 import cv2
+
+from tensorflow.keras.models import load_model
 from hand_detector.yolo.darknet import model as yolo_model
 from hand_detector.yolo.generator import load_test_images
 from hand_detector.yolo.preprocess.yolo_flag import Flag
 from metrics import iou, get_stat
 
 f = Flag()
+# TEST DATASET LABELS
 df_test = pd.read_csv('custom_dataset/test_labels.csv') 
+
 
 def get_test_image(image_name, directory = 'custom_dataset/'):
     image = cv2.imread(directory + 'test/' + image_name, cv2.COLOR_BGR2RGB)
@@ -18,6 +24,7 @@ def get_test_image(image_name, directory = 'custom_dataset/'):
     image = cv2.resize(image, (f.target_size, f.target_size))
     processed_image = np.expand_dims(image, axis=0) / 255.0
     return processed_image
+
 
 def get_test_bbox(image_name):
 
@@ -53,11 +60,12 @@ def convert_anchor_to_bbox(yolo_out, threshold = 0.8, width=224, height=224):
     else:
         return None
 
+
 def show_result(preprocess, pr_bbox, gt_bbox, tmp_iou):
     image = preprocess.astype(np.float32)
     if pr_bbox is not None:
         x1, y1, x2, y2 = int(pr_bbox[0]), int(pr_bbox[1]), int(pr_bbox[2]), int(pr_bbox[3])
-        image = cv2.rectangle(image[0], (x1, y1), (x2, y2), (0,0,0), 2)
+        image = cv2.rectangle(image, (x1, y1), (x2, y2), (0,0,0), 2)
     if gt_bbox is not None:
         x1, y1, x2, y2 = int(gt_bbox[0]), int(gt_bbox[1]), int(gt_bbox[2]), int(gt_bbox[3])
         image = cv2.rectangle(image, (x1, y1), (x2, y2), (0,255,0), 2)
@@ -67,13 +75,13 @@ def show_result(preprocess, pr_bbox, gt_bbox, tmp_iou):
     cv2.imshow('test_image', image)
 
 
-
-def run_test(weights = 'weights/yolo.h5', iou_threshold = 0.5, confidence_threshold = 0.8, show = False):
+def run_test(weights = 'weights/yolo.h5', iou_threshold = 0.5, confidence_threshold = 0.8, show = True):
 
     # create the model
     model = yolo_model()
-    model.load_weights(weights)
-
+    model.load_weights(weights) 
+    # model.summary()
+    # exit()
     # test
     list_test_images = load_test_images()
     test_set_size = len(list_test_images)
@@ -119,9 +127,9 @@ def run_test(weights = 'weights/yolo.h5', iou_threshold = 0.5, confidence_thresh
             iou_list.append(tmp_iou)
         
         if show:
-            show_result(preprocess, pr_bbox, gt_bbox, tmp_iou)
+            show_result(preprocess[0], pr_bbox, gt_bbox, tmp_iou)
 
-            if cv2.waitKey(15) & 0xff == 27:
+            if cv2.waitKey(60) & 0xff == 27:
                 cv2.destroyAllWindows()
                 break
     avg_iou = sum(iou_list)/len(iou_list)
@@ -133,10 +141,7 @@ def run_test(weights = 'weights/yolo.h5', iou_threshold = 0.5, confidence_thresh
     print('Precision : {:.2f} %'.format(precision*100))
 
 if __name__ == '__main__':
-    # print('\n\n --------- yolo -----------')
-    # run_test(weights = 'weights/yolo.h5', iou_threshold = 0.5, confidence_threshold = 0.8)
-    print(' --------- yolo - best_yolo_old_dataset.h5 -----------')
-    run_test(weights = 'weights/best_yolo_old_dataset.h5', iou_threshold = 0.5, confidence_threshold = 0.8)
+    print('\n\n --------- yolo -----------')
+    run_test(weights = 'weights/yolo.h5', iou_threshold = 0.5, confidence_threshold = 0.8)
 
-    # print(' --------- yolo - weights_2_032 -----------')
-    # run_test(weights = 'weights/weights_2_032.h5', iou_threshold = 0.5, confidence_threshold = 0.8)
+

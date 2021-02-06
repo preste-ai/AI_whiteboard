@@ -19,7 +19,7 @@ def model():
     y = Activation('relu')(y)
     y = Conv2D(1, (3, 3), activation='linear')(y)
     position = Reshape(target_shape=(10, 10), name='positional_output')(y)
-    model = Model(input=model.input, outputs=[probability, position])
+    model = Model(inputs=model.input, outputs=[probability, position])
     return model
 
 

@@ -1,47 +1,9 @@
 import cv2
 import numpy as np
-from hand_detector.solo.solo_net import model as solo_model
 from hand_detector.yolo.darknet import model as yolo_model
-from hand_detector.solo.preprocess.solo_flag import Flag as soloFlag
+from tensorflow.keras.models import load_model
 from hand_detector.yolo.preprocess.yolo_flag import Flag as yoloFlag
 from trt_utils import *
-
-class SOLO:
-    def __init__(self, weights, threshold):
-        self.f = soloFlag()
-        self.model = solo_model()
-        self.threshold = threshold
-        self.model.load_weights(weights)
-
-    def detect(self, image):
-        ori_image = image
-        height, width, _ = ori_image.shape
-        image = cv2.resize(ori_image, (416, 416))
-        img = image / 255.0
-        img = np.expand_dims(img, axis=0)
-        grid_output = self.model.predict(img)
-        grid_output = grid_output[0]
-        output = (grid_output > self.threshold).astype('int')
-
-        # finding bounding box
-        prediction = np.where(output > self.threshold)
-        row_wise = prediction[0]
-        col_wise = prediction[1]
-        try:
-            x1 = min(col_wise) * self.f.grid_size
-            y1 = min(row_wise) * self.f.grid_size
-            x2 = (max(col_wise) + 1) * self.f.grid_size
-            y2 = (max(row_wise) + 1) * self.f.grid_size
-            # size conversion
-            x1 = int(x1 / self.f.target_size * width)
-            y1 = int(y1 / self.f.target_size * height)
-            x2 = int(x2 / self.f.target_size * width)
-            y2 = int(y2 / self.f.target_size * height)
-            return (x1, y1), (x2, y2)
-
-        except ValueError:
-            print('NO Hand Detected')
-            return None, None
 
 
 class YOLO:
@@ -55,8 +17,9 @@ class YOLO:
             self.inputs, self.outputs, self.bindings, self.stream = allocate_buffers(self.engine)
             self.context = self.engine.create_execution_context()
         else:
+            # self.model = load_model(model)
             self.model = yolo_model()
-            self.model.load_weights(weights)
+            self.model.load_weights(weights) 
 
     def detect(self, image):
         height, width, _ = image.shape
