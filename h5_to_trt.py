@@ -2,6 +2,7 @@ import tensorflow as tf
 from tensorflow.keras.models import load_model
 from tensorflow.tools.graph_transforms import TransformGraph
 import os
+import argparse
 import tensorrt as trt
 import onnx
 import onnx.backend as backend
@@ -180,29 +181,36 @@ def onnx_to_trt(folder, model_name):
     return engine
 
 
-if __name__ == "__main__":
+def parse_args():
+    """ Parse input arguments """
+    parser = argparse.ArgumentParser(description='H5 to TensorRT converter arguments')
     
-    folder = 'weights/converted'
-    model_name = 'model_yolo'
+    parser.add_argument('--folder', dest='folder', help='Path to folder with h5 model', type=str, required=True)       # default='weights/converted'
+    parser.add_argument('--model_name', dest='model_name', help='Model name (without .h5)', type=str, required=True )  # default='model_yolo'
+
+    return parser.parse_args()
+
+if __name__ == "__main__":
+    args = parse_args()
     
     # args = {'model':'converted/model_classes8.pb',
     #         'n' : 200}
     # network_structure(args)
     
     try:
-       h5_to_pb(folder, model_name)
+       h5_to_pb(args.folder, args.model_name)
     except Exception as e:
         print('\n\nError: h5_to_pb')
         print(e)
 
     try:
-       pb_to_onnx(folder, model_name)
+       pb_to_onnx(args.folder, args.model_name)
     except Exception as e:
         print('\n\nError: pb_to_onnx')
         print(e)
 
     try:
-       onnx_to_trt(folder, model_name)
+       onnx_to_trt(args.folder, args.model_name)
     except Exception as e:
         print('\n\nError: onnx_to_trt')
         print(e)
