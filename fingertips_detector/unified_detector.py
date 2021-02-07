@@ -45,6 +45,7 @@ class Fingertips:
         image = image.astype('float32')
         image = image / 255.0
         image = np.expand_dims(image, axis=0)
+        # TensorRT engine
         if self.trt:
             np.copyto(self.inputs[0].host, image.ravel())
             position, probability = do_inference(self.context, 
@@ -55,11 +56,9 @@ class Fingertips:
             					
             position = position.reshape((1,10,10))
             probability = probability.reshape((1,5))
-            # print('\nposition    - >', position)
-            # print('\nprobability - >', probability)
         else:
             probability, position = self.model.predict(image)
-            # print('\n\nprobability {}, position {}'.format(probability.shape, position.shape))
+            
         probability = probability[0]
         position = position[0]
         return probability, position

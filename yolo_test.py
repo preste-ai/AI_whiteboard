@@ -143,5 +143,3 @@ def run_test(weights = 'weights/yolo.h5', iou_threshold = 0.5, confidence_thresh
 if __name__ == '__main__':
     print('\n\n --------- yolo -----------')
     run_test(weights = 'weights/yolo.h5', iou_threshold = 0.5, confidence_threshold = 0.8)
-
-

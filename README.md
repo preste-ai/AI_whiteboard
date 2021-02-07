@@ -20,9 +20,11 @@ I want to transform any wall or surface into an interactive whiteboard just with
 
 ## Launch
 
+Download weight or TensorRT engines : https://drive.google.com/drive/folders/1eDBqbZfoY7XJ3fYv8FEMJ5AZe_3n0sjU?usp=sharing
+
 To run AI whiteboard:
 
-`$ python3 ai_whiteboard.py -j --trt --hd 0.8 --ft 0.5`
+`$ python3 ai_whiteboard.py --rpc --trt --hd 0.8 --ft 0.5`
 
 #### Control
 | To draw | To move | To erase | To clean | To save | 

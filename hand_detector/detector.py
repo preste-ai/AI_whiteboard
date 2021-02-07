@@ -27,6 +27,7 @@ class YOLO:
         image = cv2.resize(image, (self.f.target_size, self.f.target_size)) / 255.0
         image = np.expand_dims(image, axis=0)
         
+        # TensorRT engine  
         if self.trt:
             np.copyto(self.inputs[0].host, image.ravel())
             yolo_out = np.array([do_inference(self.context, 
