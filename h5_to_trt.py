@@ -48,7 +48,6 @@ def h5_to_pb(folder , model_name):
   tf.compat.v1.keras.backend.set_learning_phase(0)
   print('Model-path -> ', folder +'/'+ model_name + ".h5")
   model = load_model(folder +'/'+ model_name + ".h5", custom_objects=None)
-
   graph_before = tf.compat.v1.keras.backend.get_session().graph
   print('input : -> ', [inp.op.name for inp in model.inputs])
   print('output: -> ', [out.op.name for out in model.outputs])
@@ -140,8 +139,8 @@ def create_optimization_profiles(builder, inputs, batch_sizes=[1]):
     return list(profiles.values())
 
 
-def onnx_to_trt(folder, model_name):
-    print('--- fp_16 ---')
+def onnx_to_trt(folder, model_name, fp = 16):
+    print('--- fp_{} ---'.format(fp))
 
     EXPLICIT_BATCH = 1 << int(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH)
     F = EXPLICIT_BATCH
@@ -149,16 +148,17 @@ def onnx_to_trt(folder, model_name):
     NUM_IMAGES_PER_BATCH = 1
 
     with trt.Builder(TRT_LOGGER) as builder, builder.create_network(F) as network,trt.OnnxParser(network, TRT_LOGGER) as parser, builder.create_builder_config() as config:
-        if builder.platform_has_fast_fp16:
-            print("Jetson has fast fp16 mode")
-       
+        
         builder.max_batch_size = NUM_IMAGES_PER_BATCH
         builder.max_workspace_size = 1 << 30
-        builder.fp16_mode = True
+        if fp == 16:
+        	builder.fp16_mode = True
         builder.strict_type_constraints = True
 
         config.max_workspace_size = 1 << 30
-        config.flags |= 1 << int(trt.BuilderFlag.FP16)
+        if fp == 16:
+        	config.flags |= 1 << int(trt.BuilderFlag.FP16)
+        	
         config.flags |= 1 << int(trt.BuilderFlag.STRICT_TYPES)
 
         with open("./{}/{}.onnx".format(folder, model_name), 'rb') as model:
@@ -176,7 +176,7 @@ def onnx_to_trt(folder, model_name):
                 add_profiles(config, inputs, opt_profiles)
                 
                 engine = builder.build_engine(network, config)
-            with open('./{}/{}.fp16.engine'.format(folder, model_name), "wb") as engine_file:
+            with open('./{}/{}.fp{}.engine'.format(folder, model_name, fp), "wb") as engine_file:
                 engine_file.write(engine.serialize())
     return engine
 
@@ -187,7 +187,7 @@ def parse_args():
     
     parser.add_argument('--folder', dest='folder', help='Path to folder with h5 model', type=str, required=True)       # default='weights/converted'
     parser.add_argument('--model_name', dest='model_name', help='Model name (without .h5)', type=str, required=True )  # default='model_yolo'
-
+    parser.add_argument('--fp', dest='fp', help='TensorRT engine precision', type=int, default=16 ) 
     return parser.parse_args()
 
 if __name__ == "__main__":
@@ -210,7 +210,7 @@ if __name__ == "__main__":
         print(e)
 
     try:
-       onnx_to_trt(args.folder, args.model_name)
+       onnx_to_trt(args.folder, args.model_name, args.fp)
     except Exception as e:
         print('\n\nError: onnx_to_trt')
         print(e)
