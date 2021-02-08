@@ -6,7 +6,7 @@ config.gpu_options.allow_growth = True
 session = tf.compat.v1.Session(config=config)
 
 import cv2
-
+from trt_utils import *
 from tensorflow.keras.models import load_model
 from hand_detector.yolo.darknet import model as yolo_model
 from hand_detector.yolo.generator import load_test_images
@@ -61,27 +61,34 @@ def convert_anchor_to_bbox(yolo_out, threshold = 0.8, width=224, height=224):
         return None
 
 
-def show_result(preprocess, pr_bbox, gt_bbox, tmp_iou):
-    image = preprocess.astype(np.float32)
-    if pr_bbox is not None:
-        x1, y1, x2, y2 = int(pr_bbox[0]), int(pr_bbox[1]), int(pr_bbox[2]), int(pr_bbox[3])
-        image = cv2.rectangle(image, (x1, y1), (x2, y2), (0,0,0), 2)
-    if gt_bbox is not None:
-        x1, y1, x2, y2 = int(gt_bbox[0]), int(gt_bbox[1]), int(gt_bbox[2]), int(gt_bbox[3])
-        image = cv2.rectangle(image, (x1, y1), (x2, y2), (0,255,0), 2)
+# def show_result(preprocess, pr_bbox, gt_bbox, tmp_iou):
+#     image = preprocess.astype(np.float32)
+#     if pr_bbox is not None:
+#         x1, y1, x2, y2 = int(pr_bbox[0]), int(pr_bbox[1]), int(pr_bbox[2]), int(pr_bbox[3])
+#         image = cv2.rectangle(image, (x1, y1), (x2, y2), (0,0,0), 2)
+#     if gt_bbox is not None:
+#         x1, y1, x2, y2 = int(gt_bbox[0]), int(gt_bbox[1]), int(gt_bbox[2]), int(gt_bbox[3])
+#         image = cv2.rectangle(image, (x1, y1), (x2, y2), (0,255,0), 2)
+# 
+#     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+#     cv2.putText(image, '{:.2f}'.format(tmp_iou), (25,25), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,255,0),2,cv2.LINE_AA)
+#     cv2.imshow('test_image', image)
 
-    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-    cv2.putText(image, '{:.2f}'.format(tmp_iou), (25,25), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,255,0),2,cv2.LINE_AA)
-    cv2.imshow('test_image', image)
 
+def run_test(weights = 'weights/yolo.h5', trt_engine = 'weights/engines/model_trained_yolo.fp16.engine', iou_threshold = 0.5, confidence_threshold = 0.8, trt = False, show = True):
 
-def run_test(weights = 'weights/yolo.h5', iou_threshold = 0.5, confidence_threshold = 0.8, show = True):
-
-    # create the model
-    model = yolo_model()
-    model.load_weights(weights) 
+  
+    if trt: 
+        engine = load_engine(trt_engine)
+        inputs, outputs, bindings, stream = allocate_buffers(engine)
+        context = engine.create_execution_context() 
+    else:
+        # create the model
+        model = yolo_model()
+        model.load_weights(weights)
+    
     # model.summary()
-    # exit()
+
     # test
     list_test_images = load_test_images()
     test_set_size = len(list_test_images)
@@ -92,9 +99,21 @@ def run_test(weights = 'weights/yolo.h5', iou_threshold = 0.5, confidence_thresh
     gt_list = []
 
     for i in range(test_set_size):
+        print(i)
         image_name = list_test_images[i]
         preprocess = get_test_image(image_name)
-        yolo_output = model.predict(preprocess)[0]
+        np.copyto(inputs[0].host, preprocess.ravel())
+        if trt:
+            yolo_out = np.array([do_inference(context, 
+            									bindings=bindings, 
+            									inputs=inputs,       									
+            									outputs=outputs, 
+            									stream=stream)
+            					]).reshape((1, 7, 7, 5))
+            yolo_output = yolo_out[0]
+        else:    					
+            yolo_output = model.predict(preprocess)[0]
+       
         pr_bbox = convert_anchor_to_bbox(yolo_output, threshold = confidence_threshold, width=f.target_size, height=f.target_size)
         gt_bbox = get_test_bbox(image_name)
 
@@ -126,12 +145,11 @@ def run_test(weights = 'weights/yolo.h5', iou_threshold = 0.5, confidence_thresh
 
             iou_list.append(tmp_iou)
         
-        if show:
-            show_result(preprocess[0], pr_bbox, gt_bbox, tmp_iou)
-
-            if cv2.waitKey(60) & 0xff == 27:
-                cv2.destroyAllWindows()
-                break
+        #if show:
+        #    show_result(preprocess[0], pr_bbox, gt_bbox, tmp_iou)
+        #    if cv2.waitKey(60) & 0xff == 27:
+        #        cv2.destroyAllWindows()
+        #        break
     avg_iou = sum(iou_list)/len(iou_list)
     acc, recall, precision, _ = get_stat(gt_list, pr_list)
 
@@ -142,4 +160,4 @@ def run_test(weights = 'weights/yolo.h5', iou_threshold = 0.5, confidence_thresh
 
 if __name__ == '__main__':
     print('\n\n --------- yolo -----------')
-    run_test(weights = 'weights/yolo.h5', iou_threshold = 0.5, confidence_threshold = 0.8)
+    run_test(weights = 'weights/yolo.h5',  trt_engine = 'weights/engines/model_trained_yolo.fp32.engine', iou_threshold = 0.5, confidence_threshold = 0.8, trt = True)
