@@ -38,12 +38,12 @@ class AIWhiteboard():
 
         # init models
         self.hand_detector = YOLO(weights='weights/trained_yolo.h5', 
-                                  trt_engine = 'engines/model_trained_yolo.fp16.engine', 
+                                  trt_engine = 'weights/engines/model_trained_yolo.fp16.engine', 
                                   threshold=self.confidence_hd_threshold, 
                                   trt = args.trt)
 
         self.fingertips_detector = Fingertips(weights='weights/classes8.h5', 
-                                              trt_engine = 'engines/model_classes8.fp16.engine', 
+                                              trt_engine = 'weights/engines/model_classes8.fp16.engine', 
                                               trt = args.trt)
         if args.raspberry_pi_camera:
             self.cam = cv2.VideoCapture(gstreamer_pipeline(capture_width=config['cam_w'],
