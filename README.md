@@ -60,14 +60,14 @@ Run from a project root directory:
 
 **Jetson Devices**
 ```python 
-	python3 ai_whiteboard.py --rpc --trt 
+  python3 ai_whiteboard.py --rpc --trt 
 ```
 - rpc : If you want to use a Raspberry Pi Camera. Default: False
 - trt : If you want to use TensorRT engines. Default: False
 
 **Laptop**
 ```python
-	python3 ai_whiteboard.py 
+  python3 ai_whiteboard.py 
 ```
 
 ###### Control gesture (combination)
@@ -91,8 +91,6 @@ A [custom dataset](https://drive.google.com/drive/folders/1rFHtl6A4EKokuOQk-9vqv
 |![](images/1.jpg)|![](images/2.jpg)|![](images/3.jpg)|![](images/4.jpg)|![](images/5.jpg)|
 |![](images/6.jpg)|![](images/7.jpg)|![](images/8.jpg)|![](images/9.jpg)|![](images/10.jpg)|
  
-
-Download custom dataset or create your own one and place it to `./custom_dataset` folder. 
 
 Run from a project root directory:
 
@@ -119,7 +117,7 @@ The transformation takes place in 3 stages:
 Run from a project root directory:
 
 ```python
-	python3 h5_to_trt.py --folder weights --weights_file yolo --fp 16
+  python3 h5_to_trt.py --folder weights --weights_file yolo --fp 16
 ```
 
 - folder weights : path to the folder with model
