@@ -1,5 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras.models import load_model
+from fingertips_detector.net.network import model as fingertips_model
+from hand_detector.yolo.darknet import model as yolo_model
 from tensorflow.tools.graph_transforms import TransformGraph
 import os
 import argparse
@@ -47,7 +49,13 @@ def h5_to_pb(folder , model_name):
   # freeze Keras session - converts all variables to constants
   tf.compat.v1.keras.backend.set_learning_phase(0)
   print('Model-path -> ', folder +'/'+ model_name + ".h5")
-  model = load_model(folder +'/'+ model_name + ".h5", custom_objects=None)
+  # model = load_model(folder +'/'+ model_name + ".h5", custom_objects=None)
+  if 'yolo' in model_name:
+    model = yolo_model()
+  elif 'classes' in model_name:
+    model = fingertips_model()
+
+  model.load_weights(folder +'/'+ model_name + ".h5")
   graph_before = tf.compat.v1.keras.backend.get_session().graph
   print('input : -> ', [inp.op.name for inp in model.inputs])
   print('output: -> ', [out.op.name for out in model.outputs])
@@ -185,8 +193,8 @@ def parse_args():
     """ Parse input arguments """
     parser = argparse.ArgumentParser(description='H5 to TensorRT converter arguments')
     
-    parser.add_argument('--folder', dest='folder', help='Path to folder with h5 model', type=str, required=True)       # default='weights/converted'
-    parser.add_argument('--model_name', dest='model_name', help='Model name (without .h5)', type=str, required=True )  # default='model_yolo'
+    parser.add_argument('--folder', dest='folder', help='Path to folder with h5 model', type=str, required=True)       # default='weights/engines'
+    parser.add_argument('--weights_file', dest='model_name', help='Model name (without .h5)', type=str, required=True )  # default='model_yolo'
     parser.add_argument('--fp', dest='fp', help='TensorRT engine precision', type=int, default=16 ) 
     return parser.parse_args()
 

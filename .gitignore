@@ -1,6 +1,4 @@
 __pycache__/
-/custom_dataset
-/weights
 *.h5
 *.pb
 *.engine

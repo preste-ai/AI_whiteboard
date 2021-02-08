@@ -21,15 +21,13 @@ class AIWhiteboard():
         """
         Initialization of AI Whiteboard class
 
-        args.confidence_ft_threshold :float   : confidence threshold of Fingertips detector  
-        args.confidence_hd_threshold :float   : confidence threshold of Hand detector
         args.trt                     :boolean : if True - use TensorRT engines for inference
         args.raspberry_pi_camera     :boolean : if True - capture images from Raspberry Pi Camera
         """
 
         super(AIWhiteboard, self).__init__()
-        self.confidence_ft_threshold = args.confidence_ft_threshold
-        self.confidence_hd_threshold = args.confidence_hd_threshold
+        self.confidence_ft_threshold = config['confidence_ft_threshold']
+        self.confidence_hd_threshold = config['confidence_hd_threshold']
         self.colors = [(15, 15, 240),
                       (15, 240, 155),
                       (240, 155, 15),
@@ -222,8 +220,6 @@ def parse_args():
     parser.set_defaults(raspberry_pi_camera=False)
     parser.add_argument('--trt', dest='trt', action='store_true', help='Use TensoRT engine')
     parser.set_defaults(trt=False)
-    parser.add_argument('--hd', dest='confidence_hd_threshold', help='Hand Detector confidence threshold', type=float, default=0.8)
-    parser.add_argument('--ft', dest='confidence_ft_threshold', help='Fingertips Detector confidence threshold', type=float, default=0.5)
 
     return parser.parse_args()
 
