@@ -5,4 +5,6 @@ config = {
 	'cam_h'       : 240,
 	'framerate'   : 60,
 	'zoom_koef'   : 2,   # zoom koef
+	'confidence_ft_threshold' : 0.5, # confidence threshold of Fingertips detector
+	'confidence_hd_threshold' : 0.8, # confidence threshold of Hand detector         
 }
