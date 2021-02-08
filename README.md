@@ -12,9 +12,12 @@ I want to transform any wall or surface into an interactive whiteboard just with
 - Jetson Xavier NX **JetPack 4.4**
 - Raspberry Pi Camera + ArduCam (8MP IMX219 Sensor Module)
 
+**Note:** The system works also on Jetson Nano, TX2
+
 ## Details
 
-We capture an image from a camera. Then we crop this image into a square. Next, we use **a hand detector[1]  (YOLO[3] - deep neural network)**,to find a hand in the image. If there is a hand in the image, we crop that hand out of the image and feed it to **a Fingertip detector[1]  (modified VGG16 - deep neural network)**. Next, if we can detect fingertips, we use their coordinates to control the whiteboard (See the control section below). To use AI whiteboard correctly you need to find a wall or surface and place a camera at a distance of about 1 meter. 
+To use AI whiteboard correctly you need to find a wall or flat surface and place a camera at a distance of about 1 meter. It can be any wall/surface but the system works more accurately with the dark or light monotonous walls/surfaces.
+We capture an image from a camera. Then we crop this image into a square. Next, we use **a hand detector[1]  (YOLO[3] - deep neural network)**,to find a hand in the image. If there is a hand in the image, we crop that hand out of the image and feed it to **a Fingertip detector[1]  (modified VGG16 - deep neural network)**. Next, if we can detect fingertips, we use their coordinates to control the whiteboard (See the control section below). 
 
 ## Launch AI Whiteboard
 
@@ -34,27 +37,38 @@ You can download needed packages via pip using the `requirements.txt` file:
 
 ##### 4. Download [weights or TensorRT engines](https://drive.google.com/drive/folders/1eDBqbZfoY7XJ3fYv8FEMJ5AZe_3n0sjU?usp=sharing) and put it to `weights` or `weights/engines`.
 
-**Note:** TensorRT engines will work correctly only in Jetson Xavier NX devices as TensorRT engines depends on hardware. If you want to use this models on others Jetson devices please convert .h5 model with `h5_to_trt.py` script on your device. 
+**Note:** The current TensorRT engines work correctly **only** on Jetson Xavier NX devices as TensorRT engines depends on hardware. If you want to use this models(engines) on others Jetson devices please convert .h5 model with `h5_to_trt.py` script on your device. 
 
-##### 5. Run AI whiteboard script. 
+##### 5. Set up the power mode (ID=2, 15W 6 cores) `$ sudo /usr/sbin/nvpmodel -m 2`
+
+##### 6. Launch device's fan `sudo jetson_clocks --fan` 
+
+##### 7. Run AI whiteboard script. 
 
 Check `config.py` file and set up needed parameters.
 - whiteboard_w : 200 - whiteboard width (px) (displayed on camera caputed image)
 - whiteboard_h : 200 - whiteboard height (px) (displayed on camera caputed image)
 - cam_w       : 320 - width (px) of a captured image 
 - cam_h       : 240 - height (px) of a captured image
-- framerate   : 60 - camera capute framerate (for Raspberry Pi Camera)
+- framerate   : 60 - camera capture framerate (for Raspberry Pi Camera)
 - zoom_koef   : 2 - zoom coefficient to resize whiteboard_w and whiteboard_h
 - confidence_ft_threshold : 0.5 - confidence threshold of Fingertips detector
 - confidence_hd_threshold : 0.8 - confidence threshold of Hand detector      
 
 ---
-Run from a root directory:
+Run from a project root directory:
 
-`$ python ai_whiteboard.py --rpc --trt `
+**Jetson Devices**
+```python 
+	python3 ai_whiteboard.py --rpc --trt 
+```
 - rpc : If you want to use a Raspberry Pi Camera. Default: False
 - trt : If you want to use TensorRT engines. Default: False
 
+**Laptop**
+```python
+	python3 ai_whiteboard.py 
+```
 
 ###### Control gesture (combination)
 | To draw | To move | To erase | To clean | To save | 
@@ -80,16 +94,20 @@ A [custom dataset](https://drive.google.com/drive/folders/1rFHtl6A4EKokuOQk-9vqv
 
 Download custom dataset or create your own one and place it to `./custom_dataset` folder. 
 
-Run from a root directory:
+Run from a project root directory:
 
-`$ python3 yolo_train.py`
+```python
+ python3 yolo_train.py
+```
 
 
 ## Testing Hand-detector
 
-Run from a root directory:
+Run from a project root directory:
 
-`$ python3 yolo_test.py`
+```python
+ python3 yolo_test.py
+```
 
 ## Convert .h5 model to TensorRT engine [2]
 
@@ -98,12 +116,15 @@ The transformation takes place in 3 stages:
 2. Convert frozen graph to onnx (.pb -> .onnx)
 3. Convert onnx model to TensorRT engine (.onnx -> .engine)
 
-Run from a root directory:
+Run from a project root directory:
 
-`$ python3 h5_to_trt.py --folder weights --model_name model_yolo`
+```python
+	python3 h5_to_trt.py --folder weights --weights_file yolo --fp 16
+```
 
-- folder weights : path to the folder with model (model + weights but **not only weights**)
-- model_name : model's name to convert (**without .h5**)
+- folder weights : path to the folder with model
+- weights_file : weights file name (**without .h5**)
+- fp : TensorRT engine precision (16 or 32)
 
 ## Performance
 
