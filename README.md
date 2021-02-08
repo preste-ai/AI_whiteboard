@@ -64,10 +64,6 @@ Run from a root directory:
 
 ## Training Hand-detector
 
-Run from a root directory:
-
-`$ python3 yolo_train.py`
-
 #### Custom Dataset
 
 A [custom dataset](https://drive.google.com/drive/folders/1rFHtl6A4EKokuOQk-9vqvWV0WiKyRfco?usp=sharing) was collected and labeled (12,000 images) for training. For labeling I used [CVAT](https://github.com/openvinotoolkit/cvat).
@@ -81,6 +77,12 @@ A [custom dataset](https://drive.google.com/drive/folders/1rFHtl6A4EKokuOQk-9vqv
 |![](images/1.jpg)|![](images/2.jpg)|![](images/3.jpg)|![](images/4.jpg)|![](images/5.jpg)|
 |![](images/6.jpg)|![](images/7.jpg)|![](images/8.jpg)|![](images/9.jpg)|![](images/10.jpg)|
  
+
+Download custom dataset or create your own one and place it to `./custom_dataset` folder. 
+
+Run from a root directory:
+
+`$ python3 yolo_train.py`
 
 
 ## Testing Hand-detector
