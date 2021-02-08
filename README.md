@@ -14,12 +14,12 @@ I want to transform any wall or surface into an interactive whiteboard just with
 
 ## Details
 
-We capture an image from a camera. Then we crop this image into a square. Next, we use **a hand detector[1]  (YOLO - deep neural network)**,to find a hand in the image. If there is a hand in the image, we crop that hand out of the image and feed it to **a Fingertip detector[1]  (modified VGG16 - deep neural network)**. Next, if we can detect fingertips, we use their coordinates to control the whiteboard (See the control section below). To use AI whiteboard correctly you need to find a wall or surface and place camera around 1 meter far away. 
+We capture an image from a camera. Then we crop this image into a square. Next, we use **a hand detector[1]  (YOLO[3] - deep neural network)**,to find a hand in the image. If there is a hand in the image, we crop that hand out of the image and feed it to **a Fingertip detector[1]  (modified VGG16 - deep neural network)**. Next, if we can detect fingertips, we use their coordinates to control the whiteboard (See the control section below). To use AI whiteboard correctly you need to find a wall or surface and place a camera at a distance of about 1 meter. 
 
 ## Launch AI Whiteboard
 
 ##### 1. Set up your NVIDIA Jetson Device or use your PC.
-- [Jetson Xavier NX](https://developer.nvidia.com/embedded/learn/get-started-jetson-xavier-nx-devkit) [JetPack 4.4](https://developer.nvidia.com/jetpack-sdk-44-archive) (CUDA 10.2, TensorRT 7.1.3, cuDNN 8.0)
+- [Jetson Xavier NX](https://developer.nvidia.com/embedded/learn/get-started-jetson-xavier-nx-devkit) with [JetPack 4.4](https://developer.nvidia.com/jetpack-sdk-44-archive) (CUDA 10.2, TensorRT 7.1.3, cuDNN 8.0)
 - [Install Tensorflow 1.15.3](https://docs.nvidia.com/deeplearning/frameworks/install-tf-jetson-platform/index.html)  
 
 ##### 2. Download AI Whiteboard project. `$ git clone https://github.com/preste-ai/camera_ai_whiteboard.git `
@@ -34,7 +34,7 @@ You can download needed packages via pip using the `requirements.txt` file:
 
 ##### 4. Download [weights or TensorRT engines](https://drive.google.com/drive/folders/1eDBqbZfoY7XJ3fYv8FEMJ5AZe_3n0sjU?usp=sharing) and put it to `weights` or `weights/engines`.
 
-**Note:** TensorRT engines will work correctly only in Jetson Xavier NX devices as TensorRT engines depends on hardware. If you want to use this models on others Jetson devices please convert .h5 models with `h5_to_trt.py` script on your device. 
+**Note:** TensorRT engines will work correctly only in Jetson Xavier NX devices as TensorRT engines depends on hardware. If you want to use this models on others Jetson devices please convert .h5 model with `h5_to_trt.py` script on your device. 
 
 ##### 5. Run AI whiteboard script. 
 
@@ -120,3 +120,4 @@ Jetson Xavier NX: power mode ID 2: 15W 6 cores
 ## References
 1. Unified Gesture and Fingertip Detection : https://github.com/MahmudulAlam/Unified-Gesture-and-Fingertip-Detection
 2. TensorRT guide: https://docs.nvidia.com/deeplearning/tensorrt/developer-guide/index.html#python_topics
+3. YOLO9000: Better, Faster, Stronger : https://arxiv.org/abs/1612.08242
