@@ -80,8 +80,8 @@ def pb_to_onnx(folder, model_name):
     if 'yolo' in model_name:
         os.system("python3 -m tf2onnx.convert --graphdef {}.pb --output {}.onnx --inputs input_1:0 --outputs output/Sigmoid:0 --opset=11 ".format(folder +'/'+ model_name, folder +'/' + model_name))
 
-    elif model_name == 'model_classes8':
-        os.system("python3 -m tf2onnx.convert --graphdef {}.pb --output {}.onnx --inputs input_2:0 --outputs probabilistic_output/Sigmoid:0,positional_output/Reshape:0 --opset=11 ".format(folder +'/'+ model_name, folder +'/' + model_name))
+    elif 'classes' in model_name:
+        os.system("python3 -m tf2onnx.convert --graphdef {}.pb --output {}.onnx --inputs input_1:0 --outputs probabilistic_output/Sigmoid:0,positional_output/Reshape:0 --opset=11 ".format(folder +'/'+ model_name, folder +'/' + model_name))
 
 
 
@@ -184,7 +184,7 @@ def onnx_to_trt(folder, model_name, fp = 16):
                 add_profiles(config, inputs, opt_profiles)
                 
                 engine = builder.build_engine(network, config)
-            with open('./{}/{}.fp{}.engine'.format(folder, model_name, fp), "wb") as engine_file:
+            with open('./{}/{}.fp{}.TEST.engine'.format(folder, model_name, fp), "wb") as engine_file:
                 engine_file.write(engine.serialize())
     return engine
 
