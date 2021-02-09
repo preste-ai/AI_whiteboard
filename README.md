@@ -124,7 +124,16 @@ Run from a project root directory:
 - weights_file : weights file name (**without .h5**)
 - fp : TensorRT engine precision (16 or 32)
 
-## Performance
+Metrics for **Hand detection** after model conversion.
+
+|  | keras model | TensorRT engine (fp32) | TensorRT engine (fp16) | 
+|:---------------:|:---------------:|:---------------:|:---------------:|
+| Accuracy    | 89.14 % | 89.14 % | 89.07 % |
+| Precision   | 99.45 % | 99.45 % | 99.45 % |
+| Recall      | 77.24 % | 77.24 % | 77.10 % |
+
+
+## Solution performance (Hand detector + Fingertips detector)
 
 Captured image shape : 320x240
 Jetson Xavier NX: power mode ID 2: 15W 6 cores
@@ -132,9 +141,6 @@ Jetson Xavier NX: power mode ID 2: 15W 6 cores
 |  | keras model | TensorRT engine (fp32) | TensorRT engine (fp16) | 
 |:---------------:|:---------------:|:---------------:|:---------------:|
 | Average FPS | 12 | 33 | 60 |
-| Accuracy    | 89.14 % | 89.14 % | 89.07 % |
-| Precision   | 99.45 % | 99.45 % | 99.45 % |
-| Recall      | 77.24 % | 77.24 % | 77.10 % |
 
 
 
