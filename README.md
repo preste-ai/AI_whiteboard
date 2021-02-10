@@ -4,8 +4,8 @@
 
 ## Idea
 
-The idea of this project is quite interesting. 
-I want to transform any wall or surface into an interactive whiteboard just with a camera and your hand!
+The idea of this project is to transform any wall or surface into an interactive whiteboard just with an ordinary RGB camera and your hand.
+I hope you'll find it interesting !
 
 ## Hardware
 
