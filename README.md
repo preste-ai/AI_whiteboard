@@ -37,7 +37,7 @@ You can download needed packages via pip using the `requirements.txt` file:
 
 ##### 4. Download [weights or TensorRT engines](https://drive.google.com/drive/folders/1eDBqbZfoY7XJ3fYv8FEMJ5AZe_3n0sjU?usp=sharing) and put it to `weights` or `weights/engines`.
 
-**Note:** The current TensorRT engines work correctly **only** on Jetson Xavier NX devices as TensorRT engines depends on hardware. If you want to use this models(engines) on others Jetson devices please convert .h5 model with `h5_to_trt.py` script on your device. 
+**Note:** The current TensorRT engines work correctly **only** on Jetson Xavier NX devices as TensorRT runs device-specific profiling during the optimization phase.If you want to use this models(engines) on others Jetson devices please convert .h5 model with `h5_to_trt.py` script on your platform. 
 
 ##### 5. Set up the power mode (ID=2, 15W 6 cores) `$ sudo /usr/sbin/nvpmodel -m 2`
 
