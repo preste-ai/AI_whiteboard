@@ -124,13 +124,16 @@ Run from a project root directory:
 - weights_file : weights file name (**without .h5**)
 - fp : TensorRT engine precision (16 or 32)
 
-Metrics for **Hand detection** after model conversion.
+Metrics for **Hand detection** after model conversion. 
 
-|  | keras model | TensorRT engine (fp32) | TensorRT engine (fp16) | 
-|:---------------:|:---------------:|:---------------:|:---------------:|
-| Accuracy    | 89.14 % | 89.14 % | 89.07 % |
-| Precision   | 99.45 % | 99.45 % | 99.45 % |
-| Recall      | 77.24 % | 77.24 % | 77.10 % |
+In order to determine the correctness of the detection, we use the value of [IOU](https://medium.com/towards-artificial-intelligence/understanding-iou-metric-in-object-detection-1e5532f06a76). If the value of IOU is more than 0.5 then the detector predicts a hand correctly otherwise - no. The results are given below. 
+
+
+|  | keras model before training | keras model after training | TensorRT engine (fp32) | TensorRT engine (fp16) | 
+|:---------------:|:---------------:|:---------------:|:---------------:|:---------------:|
+| Accuracy    | 72.68 % | 89.14 % | 89.14 % | 89.07 % |
+| Precision   | 84.80 % | 99.45 % | 99.45 % | 99.45 % |
+| Recall      | 50.78 % | 77.24 % | 77.24 % | 77.10 % |
 
 
 ## Solution performance (Hand detector + Fingertips detector)
